@@ -1,7 +1,15 @@
+<!-- body.phtml -->
 <?php
 $prefixes = '
 PREFIX cphm: <' . $this->namespaces["cphm"] . '>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ';
+
+$facultiesQuery = $prefixes . 'SELECT DISTINCT ?resourceUri
+WHERE {
+	?resourceUri <' . $this->namespaces["cphm"] . 'isPartOf> ?fac .
+	?fac <' . $this->namespaces["cphm"] . 'isPartOf> <'.$this->resourceUri.'> .
+}';
+$faculties = $this->querylist( $facultiesQuery, 'local/items/liplain.phtml');
 
 $personsQuery = $prefixes . 'SELECT DISTINCT ?resourceUri
 WHERE {
@@ -10,12 +18,6 @@ WHERE {
 }';
 $persons = $this->querylist( $personsQuery, 'local/items/liplain.phtml');
 
-$docQuery = $prefixes . 'SELECT DISTINCT ?resourceUri
-WHERE {
-	?resourceUri <' . $this->namespaces["cphm"] . 'documentBody> ?doc .
-	?doc <' . $this->namespaces["cphm"] . 'documentBody> <'.$this->resourceUri.'> .
-}';
-$docs = $this->querylist( $docQuery, 'local/items/liplain.phtml');
 ?>
 
 <h2 class=""><?php echo $this->title ?></h2>
@@ -27,7 +29,14 @@ if ( $bodyPlace != "" ) { ?>
 
 <?php $isPartOf = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . 'isPartOf> ?resourceUri', 'template' => 'resource'));
 if ( $isPartOf != "" ) { ?>
-	<p>Ist Teil von: <?php echo $isPartOf; ?></p>
+	<p>Gehört zu: <?php echo $isPartOf; ?></p>
+<?php } ?>
+
+<?php if ( $faculties != "" ) { ?>
+	<div class="">
+		<h3 class="">Zugehörige Fakultäten/Isntitute/Bereiche</h3>
+		<?php echo $faculties; ?>
+	</div>
 <?php } ?>
 
 <?php if ( $persons != "" ) { ?>
@@ -37,7 +46,8 @@ if ( $isPartOf != "" ) { ?>
 	</div>
 <?php } ?>
 
-<?php if ( $docs != "" ) { ?>
+<?php $docs = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . 'documentBody> ?resourceUri', 'template' => 'liplain'));
+if ( $docs != "" ) { ?>
 	<div class="">
 		<h3 class="">In Beziehung stehende Dokumente</h3>
 		<?php echo $docs; ?>
