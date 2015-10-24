@@ -1,24 +1,31 @@
 <?php
 $prefixes = '
-PREFIX cpd: <' . $this->namespaces["cpd"] . '>
+PREFIX cphm: <' . $this->namespaces["cphm"] . '>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ';
 
 $personsQuery = $prefixes . 'SELECT DISTINCT ?resourceUri
 WHERE {
-	?resourceUri <' . $this->namespaces["cpd"] . 'hasPeriod> ?period .
-	?period <' . $this->namespaces["cpd"] . 'periodBody> <'.$this->resourceUri.'> .
+	?resourceUri <' . $this->namespaces["cphm"] . 'hasPeriod> ?period .
+	?period <' . $this->namespaces["cphm"] . 'periodBody> <'.$this->resourceUri.'> .
 }';
 $persons = $this->querylist( $personsQuery, 'local/items/liplain.phtml');
+
+$docQuery = $prefixes . 'SELECT DISTINCT ?resourceUri
+WHERE {
+	?resourceUri <' . $this->namespaces["cphm"] . 'documentBody> ?doc .
+	?doc <' . $this->namespaces["cphm"] . 'documentBody> <'.$this->resourceUri.'> .
+}';
+$docs = $this->querylist( $docQuery, 'local/items/liplain.phtml');
 ?>
 
 <h2 class=""><?php echo $this->title ?></h2>
 
-<?php $bodyPlace = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cpd"] . 'bodyPlace> ?resourceUri', 'template' => 'resource'));
+<?php $bodyPlace = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . 'bodyPlace> ?resourceUri', 'template' => 'resource'));
 if ( $bodyPlace != "" ) { ?>
 	<p>Ort: <?php echo $bodyPlace; ?></p>
 <?php } ?>
 
-<?php $isPartOf = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cpd"] . 'isPartOf> ?resourceUri', 'template' => 'resource'));
+<?php $isPartOf = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . 'isPartOf> ?resourceUri', 'template' => 'resource'));
 if ( $isPartOf != "" ) { ?>
 	<p>Ist Teil von: <?php echo $isPartOf; ?></p>
 <?php } ?>
@@ -27,5 +34,12 @@ if ( $isPartOf != "" ) { ?>
 	<div class="">
 		<h3 class="">In Beziehung stehende Personen</h3>
 		<?php echo $persons; ?>
+	</div>
+<?php } ?>
+
+<?php if ( $docs != "" ) { ?>
+	<div class="">
+		<h3 class="">In Beziehung stehende Dokumente</h3>
+		<?php echo $docs; ?>
 	</div>
 <?php } ?>
