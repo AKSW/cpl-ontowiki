@@ -1,0 +1,31 @@
+<?php
+$prefixes = '
+PREFIX cpd: <' . $this->namespaces["cpd"] . '>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ';
+
+$personsQuery = $prefixes . 'SELECT DISTINCT ?resourceUri
+WHERE {
+	?resourceUri <' . $this->namespaces["cpd"] . 'hasPeriod> ?period .
+	?period <' . $this->namespaces["cpd"] . 'periodBody> <'.$this->resourceUri.'> .
+}';
+$persons = $this->querylist( $personsQuery, 'local/items/liplain.phtml');
+?>
+
+<h2 class=""><?php echo $this->title ?></h2>
+
+<?php $bodyPlace = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cpd"] . 'bodyPlace> ?resourceUri', 'template' => 'resource'));
+if ( $bodyPlace != "" ) { ?>
+	<p>Ort: <?php echo $bodyPlace; ?></p>
+<?php } ?>
+
+<?php $isPartOf = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cpd"] . 'isPartOf> ?resourceUri', 'template' => 'resource'));
+if ( $isPartOf != "" ) { ?>
+	<p>Ist Teil von: <?php echo $isPartOf; ?></p>
+<?php } ?>
+
+<?php if ( $persons != "" ) { ?>
+	<div class="">
+		<h3 class="">In Beziehung stehende Personen</h3>
+		<?php echo $persons; ?>
+	</div>
+<?php } ?>

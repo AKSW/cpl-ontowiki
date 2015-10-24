@@ -1,0 +1,127 @@
+<?php
+
+$searchText = null;
+$m = null;
+if (isset($_POST['q'])) {
+    $searchText = $_POST['q'];
+}
+if (isset($_POST['mode'])) {
+    $m = $_POST['mode'];
+}
+
+?>
+
+<h3><?= $this->_('search_title') ?></h3>
+<form method="post">
+    <!--<select name="mode">
+        <option value="person" <?= ($m=='person')?'selected':'' ?>><?= $this->_('search_person') ?></option>
+        <option value="ort" <?= ($m=='ort')?'selected':'' ?>><?= $this->_('search_place') ?></option>
+    </select>-->
+    <input name="mode" type="hidden" value="person"/>
+    <input name="q" type="text" value="<?= $searchText ?>"/>
+    <input type="submit" value="<?= $this->_('search_search') ?>"/>
+</form>
+
+<?php
+
+$query = new Erfurt_Sparql_Query2();
+$foafIri = new Erfurt_Sparql_Query2_IriRef('http://xmlns.com/foaf/0.1/');
+$cpmIri = new Erfurt_Sparql_Query2_IriRef($this->namespaces["cpd"]);
+$hpIri = new Erfurt_Sparql_Query2_IriRef('http://purl.org/voc/hp/');
+$rdfsIri = new Erfurt_Sparql_Query2_IriRef('http://www.w3.org/2000/01/rdf-schema#');
+$foafPrefix = new Erfurt_Sparql_Query2_Prefix('foaf', $foafIri);
+$hpPrefix = new Erfurt_Sparql_Query2_Prefix('hp', $hpIri);
+$rdfsPrefix = new Erfurt_Sparql_Query2_Prefix('rdfs', $rdfsIri);
+$cpmPrefix = new Erfurt_Sparql_Query2_Prefix('cpm', $cpmIri);
+$query->addPrefix($foafPrefix);
+$query->addPrefix($hpPrefix);
+$query->addPrefix($rdfsPrefix);
+$query->addPrefix($cpmPrefix);
+
+$store = Erfurt_App::getInstance()->getStore();
+$resourceUriVar  = new Erfurt_Sparql_Query2_Var('resourceUri');
+
+$template = 'resource';
+
+if ($m == 'person') {
+    //$nameRef  = new Erfurt_Sparql_Query2_IriRef('name', $foafPrefix);
+    $nameRef  = new Erfurt_Sparql_Query2_IriRef('label', $rdfsPrefix);
+    $elements = $store->getSearchPatternWithNode($searchText, $nameRef);
+    /*
+    $pVar  = new Erfurt_Sparql_Query2_IriRef('isPastor', $hpPrefix);
+    $oVar  = new Erfurt_Sparql_Query2_Var('isPastor');
+    $elements[] = new Erfurt_Sparql_Query2_Triple($resourceUriVar, $pVar, $oVar);
+    $elements[] = new Erfurt_Sparql_Query2_Filter(
+        new Erfurt_Sparql_Query2_ConditionalOrExpression(
+            array(
+                new Erfurt_Sparql_Query2_Equals($oVar, new Erfurt_Sparql_Query2_BooleanLiteral(true)),
+                new Erfurt_Sparql_Query2_Equals($oVar, new Erfurt_Sparql_Query2_NumericLiteral(1)),
+            )
+        )
+    );
+    */
+    
+
+    /*
+    // build optional for order by lastname
+    $lastnameRef  = new Erfurt_Sparql_Query2_IriRef('lastName', $foafPrefix);
+    $lastnameVar  = new Erfurt_Sparql_Query2_Var('lastname');
+    $lastnameOption = new Erfurt_Sparql_Query2_OptionalGraphPattern();
+    $lastnameOption->addElement(new Erfurt_Sparql_Query2_Triple($resourceUriVar, $lastnameRef, $lastnameVar));
+    $elements[] = $lastnameOption;
+
+    // build optional for order by firstname
+    $firstnameRef  = new Erfurt_Sparql_Query2_IriRef('firstName', $foafPrefix);
+    $firstnameVar  = new Erfurt_Sparql_Query2_Var('firstname');
+    $firstnameOption = new Erfurt_Sparql_Query2_OptionalGraphPattern();
+    $firstnameOption->addElement(new Erfurt_Sparql_Query2_Triple($resourceUriVar, $firstnameRef, $firstnameVar));
+    $elements[] = $firstnameOption;
+
+    $query->addElements($elements);
+    $query->getOrder()->add($lastnameVar);
+    $query->getOrder()->add($firstnameVar);
+
+    */
+    $query->addElements($elements);
+
+    $template = 'person';
+} else if ($m == 'ort') {
+    $nameOfPlaceOption = new Erfurt_Sparql_Query2_GroupGraphPattern();
+    $nameOfPlaceRef  = new Erfurt_Sparql_Query2_IriRef('nameOfPlace', $hpPrefix);
+    $nameOfPlaceOption->addElements($store->getSearchPatternWithNode($searchText, $nameOfPlaceRef));
+
+    $typePlaceOption = new Erfurt_Sparql_Query2_GroupGraphPattern();
+    $typeRef  = new Erfurt_Sparql_Query2_IriRef('Place', $hpPrefix);
+    $rdfsLabelRef  = new Erfurt_Sparql_Query2_IriRef('label', $rdfsPrefix);
+    $a = new Erfurt_Sparql_Query2_A();
+    $typePlaceOption->addElement(new Erfurt_Sparql_Query2_Triple($resourceUriVar, $a, $typeRef));
+    $typePlaceOption->addElements($store->getSearchPatternWithNode($searchText, $rdfsLabelRef));
+
+    $unionPattern = new Erfurt_Sparql_Query2_GroupOrUnionGraphPattern();
+    $unionPattern->addElement($nameOfPlaceOption);
+    $unionPattern->addElement($typePlaceOption);
+    $query->addElement($unionPattern);
+
+    // build optional for order by firstname
+    $nameOfPlaceVar  = new Erfurt_Sparql_Query2_Var('nameofplace');
+    $nameOfPlaceOption = new Erfurt_Sparql_Query2_OptionalGraphPattern();
+    $nameOfPlaceOption->addElement(new Erfurt_Sparql_Query2_Triple($resourceUriVar, $nameOfPlaceRef, $nameOfPlaceVar));
+    $query->addElement($nameOfPlaceOption);
+
+    $query->getOrder()->add($nameOfPlaceVar);
+
+    $template = 'place';
+}
+
+$query->addProjectionVar($resourceUriVar);
+$query->setDistinct();
+
+?>
+<?php if ($m !== null) : ?>
+    <p><?= sprintf($this->_('search_search_for'), $searchText) ?></p>
+    <ul>
+        <?= $this->querylist($query, 'local/items/' . $template . '.phtml', array(), array('prefix' => '<li>', 'suffix' => '</li>')) ?>
+    </ul>
+<?php else: ?>
+    <p><?= $this->_('search_explanation') ?></p>
+<?php endif; ?>

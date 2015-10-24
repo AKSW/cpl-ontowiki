@@ -37,12 +37,12 @@
 [submodule "sample-data"]
 	path = sample-data
 	url = https://github.com/amsl-project/sample-data.git
-[submodule "extensions/jobcenter"]
-	path = extensions/jobcenter
-	url = https://github.com/amsl-project/jobcenter.ontowiki.git
 [submodule "extensions/template"]
 	path = extensions/template
 	url = https://github.com/amsl-project/template.ontowiki.git
 [submodule "extensions/deadlinehelper"]
 	path = extensions/deadlinehelper
 	url = https://github.com/amsl-project/deadlinehelper.ontowiki.git
+[submodule "extensions/site"]
+	path = extensions/site
+	url = https://github.com/AKSW/site.ontowiki.git

@@ -1,0 +1,53 @@
+<!-- document.phtml -->
+<?php
+$prefixes = '
+PREFIX cphm: <' . $this->namespaces["cphm"] . '>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> ';
+
+$properties = array(
+	"Typ"		=> "type",
+	"Semester"	=> "semester",
+	"Umfang"	=> "pagination",
+	"Schlagwort"=> "keyword",
+	"Signatur"	=> "shelfmark",
+	"VD 16"		=> "vd16",
+	"VD 17"		=> "vd17",
+	"Weitere Informationen" => "note",
+);
+
+$personRelations = array(
+	"Digitalisat" => "digitalisat",	
+	"Körtperschaft" => "documentBody",
+	"Autobiografische Literatur" => "literature",
+	"Lecture" => "lecture",
+	"Respondent" => "respondent",
+	"Gratulant" => "gratulant",
+	"Dedicatee" => "dedicatee",
+	"Praeses" => "praeses",
+	"Drucker" => "printer",
+	"Beteiligte Person" => "involvedPerson",
+	"Autor" => "author",
+);
+
+?>
+
+<h2 class=""><?php echo $this->title ?></h2>
+
+<?php foreach ($properties as $key => $value) {
+	$property = $this->literal(array('property' => $this->namespaces["cphm"] . $value));
+	if ( $property != "" ) {
+		echo "<h3>".$key."</h3>";
+		echo $property;
+	}
+} ?>
+
+<?php foreach ($personRelations as $key => $value) {
+	$property = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . $value.'> ?resourceUri', 'template' => 'liplain'));
+	if ( $property != "" ) {
+		echo "<h3>".$key."</h3>";
+		echo $property;
+	}
+} ?>
+
+<?= $this->literal(array('tag' => 'div', 'class' => 'content')) ?>
