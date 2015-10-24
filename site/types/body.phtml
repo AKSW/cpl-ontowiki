@@ -15,6 +15,11 @@ $persons = $this->querylist( $personsQuery, 'local/items/liplain.phtml');
 
 <h2 class=""><?php echo $this->title ?></h2>
 
+<?php $gnd = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . 'gnd> ?resourceUri', 'template' => 'plain'));
+if ( $gnd != "" ) { ?>
+	<p>GND: <?php echo $gnd; ?></p>
+<?php } ?>
+
 <?php $bodyPlace = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . 'bodyPlace> ?resourceUri', 'template' => 'resource'));
 if ( $bodyPlace != "" ) { ?>
 	<p>Ort: <?php echo $bodyPlace; ?></p>
@@ -28,7 +33,7 @@ if ( $isPartOf != "" ) { ?>
 <?php $faculties = $this->query(array('where' => '?resourceUri <' . $this->namespaces["cphm"] . 'isPartOf> <' . $this->resourceUri . '>', 'template' => 'liplain'));
 if ( $faculties != "" ) { ?>
 	<div class="">
-		<h3 class="">Zugehörige Fakultäten/Isntitute/Bereiche</h3>
+		<h3 class="">Zugehörige Fakultäten/Institute/Bereiche</h3>
 		<?php echo $faculties; ?>
 	</div>
 <?php } ?>
@@ -40,7 +45,7 @@ if ( $faculties != "" ) { ?>
 	</div>
 <?php } ?>
 
-<?php $docs = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . 'documentBody> ?resourceUri', 'template' => 'liplain'));
+<?php $docs = $this->query(array('where' => '?resourceUri <' . $this->namespaces["cphm"] . 'documentBody> <' . $this->resourceUri . '>', 'template' => 'liplain'));
 if ( $docs != "" ) { ?>
 	<div class="">
 		<h3 class="">In Beziehung stehende Dokumente</h3>

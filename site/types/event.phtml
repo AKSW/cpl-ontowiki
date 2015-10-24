@@ -10,16 +10,28 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ';
 <?php
 $person = $this->query(array('where' => '?resourceUri <' . $this->namespaces["cphm"] . 'hasPeriod> <'.$this->resourceUri.'>', 'template' => 'resource'));
 if ( $person != "" ) {
-	echo "<p>" . $person . "</p>";
+	echo "<h3>Von</h3>";
+	echo $person;
 }
 
-$place = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . 'periodPlace> ?resourceUri', 'template' => 'resource'));
-if ( $place != "" ) {
-	echo "<p>" . $place . "</p>";
-}
+/*
+Weitere Infos
+*/
+$furtherProperties = array(
+	"Ort" => "periodPlace",
+	"Körperschaft" => "periodBody",
+	"von" => "from",	
+	"bis" => "to",
+	"Datum" => "date",
+	"Anmerkung" => "note",
+);
 
-$body = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . 'periodBody> ?resourceUri', 'template' => 'resource'));
-if ( $body != "" ) {
-	echo "<p>" . $body . "</p>";
-}
+foreach ($furtherProperties as $key => $value) {
+	$property = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . $value.'> ?resourceUri', 'template' => 'liplain'));
+	if ( $property != "" ) {
+		echo "<h3>".$key."</h3>";
+		echo $property;
+	}
+} 
+
 ?>
