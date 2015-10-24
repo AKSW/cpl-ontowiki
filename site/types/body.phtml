@@ -4,13 +4,6 @@ $prefixes = '
 PREFIX cphm: <' . $this->namespaces["cphm"] . '>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ';
 
-$facultiesQuery = $prefixes . 'SELECT DISTINCT ?resourceUri
-WHERE {
-	?resourceUri <' . $this->namespaces["cphm"] . 'isPartOf> ?fac .
-	?fac <' . $this->namespaces["cphm"] . 'isPartOf> <'.$this->resourceUri.'> .
-}';
-$faculties = $this->querylist( $facultiesQuery, 'local/items/liplain.phtml');
-
 $personsQuery = $prefixes . 'SELECT DISTINCT ?resourceUri
 WHERE {
 	?resourceUri <' . $this->namespaces["cphm"] . 'hasPeriod> ?period .
@@ -32,7 +25,8 @@ if ( $isPartOf != "" ) { ?>
 	<p>Gehört zu: <?php echo $isPartOf; ?></p>
 <?php } ?>
 
-<?php if ( $faculties != "" ) { ?>
+<?php $faculties = $this->query(array('where' => '?resourceUri <' . $this->namespaces["cphm"] . 'isPartOf> <' . $this->resourceUri . '>', 'template' => 'liplain'));
+if ( $faculties != "" ) { ?>
 	<div class="">
 		<h3 class="">Zugehörige Fakultäten/Isntitute/Bereiche</h3>
 		<?php echo $faculties; ?>

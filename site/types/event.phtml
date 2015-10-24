@@ -10,16 +10,16 @@ PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ';
 <?php
 $person = $this->query(array('where' => '?resourceUri <' . $this->namespaces["cphm"] . 'hasPeriod> <'.$this->resourceUri.'>', 'template' => 'resource'));
 if ( $person != "" ) {
-	echo "<p>" . $person . "</p>"
+	echo "<p>" . $person . "</p>";
 }
 
 $place = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . 'periodPlace> ?resourceUri', 'template' => 'resource'));
 if ( $place != "" ) {
-	echo "<p>" . $place . "</p>"
+	echo "<p>" . $place . "</p>";
 }
 
 $body = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . 'periodBody> ?resourceUri', 'template' => 'resource'));
 if ( $body != "" ) {
-	echo "<p>" . $body . "</p>"
+	echo "<p>" . $body . "</p>";
 }
 ?>
