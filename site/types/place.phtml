@@ -14,24 +14,23 @@ $geonameQuery = $prefixes . 'SELECT * WHERE {
 	}';
 $geoname = $this->querylist( $geonameQuery, 'local/items/resource.phtml');
 
-$bornQuery = $prefixes . 'SELECT *
-WHERE {
+$bornQuery = $prefixes . 'SELECT * WHERE {
 	?resourceUri <' . $this->namespaces["cphm"] . 'hasPeriod> ?period .
+	?resourceUri rdfs:label ?label .
 	?period rdf:type <' . $this->namespaces["cphm"] . 'Birth> .
 	?period <' . $this->namespaces["cphm"] . 'periodPlace> <'.$this->resourceUri.'> .
-}';
-$born = $this->querylist( $bornQuery, 'local/items/liplain.phtml');
+} ORDER BY ?label';
+$born = $this->querylist( $bornQuery . ' LIMIT 10', 'local/items/liplain.phtml', array("tag" => 'ul class="extend-list list-unstyled" data-query="'.$bornQuery.'" data-item="'.urlencode('<li class="col-md-3"><a href="%resourceUri%">%label%</a></li>').'"', "oddclass" => "col-xs-3" ) );
 
-$diedQuery = $prefixes . 'SELECT *
-WHERE {
+$diedQuery = $prefixes . 'SELECT * WHERE {
 	?resourceUri <' . $this->namespaces["cphm"] . 'hasPeriod> ?period .
+	?resourceUri rdfs:label ?label .
 	?period rdf:type <' . $this->namespaces["cphm"] . 'Death> .
 	?period <' . $this->namespaces["cphm"] . 'periodPlace> <'.$this->resourceUri.'> .
-}';
-$died = $this->querylist( $diedQuery, 'local/items/liplain.phtml');
+} ORDER BY ?label';
+$died = $this->querylist( $diedQuery . ' LIMIT 10', 'local/items/liplain.phtml', array("tag" => 'ul class="extend-list list-unstyled" data-query="'.$diedQuery.'" data-item="'.urlencode('<li class="col-md-3"><a href="%resourceUri%">%label%</a></li>').'"', "oddclass" => "col-md-3" ));
 
-$bodiesQuery = $prefixes . 'SELECT *
-WHERE {
+$bodiesQuery = $prefixes . 'SELECT * WHERE {
 	?resourceUri <' . $this->namespaces["cphm"] . 'bodyPlace> ?period .
 FILTER ( ?period = <'.$this->resourceUri.'> )
 }';
@@ -39,7 +38,9 @@ $bodies = $this->querylist( $bodiesQuery, 'local/items/liplain.phtml');
 
 ?>
 
-<h2 class=""><?php echo $this->title ?></h2>
+<div class="page-header">
+	<h2 class=""><?php echo $this->title ?></h2>
+</div>
 
 <?php if ( $geoname != "" ) { ?>
 	<p>Geoname: <?php echo $geoname; ?></p>
@@ -61,17 +62,22 @@ if ( $subsequentTo != "" ) { ?>
 	<p>Nachfolger von: <?php echo $subsequentTo; ?></p>
 <?php } ?>
 
+
 <?php if ( $born != "" ) { ?>
-	<div class="">
+	<div class="row">
+		<div class="col-md-12">
 		<h3 class="">Hier geborene Personen</h3>
 		<?php echo $born; ?>
+		</div>
 	</div>
 <?php } ?>
 
 <?php if ( $died != "" ) { ?>
-	<div class="">
+	<div class="row">
+		<div class="col-md-12">
 		<h3 class="">Hier verstorbene Personen</h3>
 		<?php echo $died; ?>
+		</div>
 	</div>
 <?php } ?>
 

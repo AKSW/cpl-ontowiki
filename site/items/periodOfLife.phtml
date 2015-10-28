@@ -8,9 +8,9 @@ $content = $this->title;
 if ( $typeof == "Birth" || $typeof == "Death" ) { // Birth or Death
 
 	if ( $typeof == "Birth" ) {
-		$content = "geboren";
+		$content = "*";
 	} else {
-		$content = "gestorben";
+		$content = "†";
 	}
 
 	if ( isset($this->date) && ! empty($this->date) ) {
@@ -23,7 +23,8 @@ if ( $typeof == "Birth" || $typeof == "Death" ) { // Birth or Death
 		$content .= " in " . $place;
 	}
 
-	$content = "<h4>" . $content . "</h4>";
+	//$content = "<h4>" . $content . "</h4>";
+	$content = "<p>" . $content . "</p>";
 
 	if ( isset($this->periodNote) && ! empty($this->periodNote) ) {
 		$content .= '<p>&nbsp;&nbsp;&nbsp;Kommentar: ' . $this->periodNote . "</p>";

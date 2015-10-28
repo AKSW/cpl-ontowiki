@@ -37,6 +37,7 @@ $classTypeof = $this->literal(array('property' => EF_RDF_NS . 'type', 'plain' =>
 	<link rel="<?= $this->curie('http://xmlns.com/foaf/0.1/primaryTopic') ?>" href="<?= $this->resourceUri?>" />
 	<link type="text/css" href="<?= $this->baseUri ?>/css/bootstrap.css" rel="stylesheet" />
 	<link type="text/css" href="<?= $this->baseUri ?>/css/style.css" rel="stylesheet" />
+	<link type="text/css" href="<?= $this->baseUri ?>/css/smoothness/jquery-ui.custom.min.css" rel="stylesheet" />
 
 	<!-- jQuery -->
 	<script type="text/javascript" src="<?= $this->themeUrlBase ?>scripts/libraries/jquery.js"></script>
@@ -120,7 +121,7 @@ $classTypeof = $this->literal(array('property' => EF_RDF_NS . 'type', 'plain' =>
 		<?php } ?>
 
 			<div class="menu pull-right">
-				<a href="<?= $this->Url(array('uri' => $this->resourceUri, 'stayOnSite' => false)) ?>"><?= $this->_('backend') ?></a>
+				<a href="<?= $this->Url(array('uri' => $this->resourceUri, 'stayOnSite' => false)) ?>"><?= $this->_('Admin-Ansicht') ?></a>
 			</div>
 
 			<br />

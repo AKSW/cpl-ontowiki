@@ -52,7 +52,7 @@ h1 {
 }
 
 .period-of-life.period td:first-child {
-    width: 15%;
+    width: 20%;
 }
 
 .footer {
@@ -133,4 +133,27 @@ h1 {
 .close-rdform-btn {
     margin-right: -45px;
     margin-top: -45px;   
+}
+.ui-state-focus {
+    background: #DDD none repeat scroll 0% 0% !important;
+    border: medium none !important;
+}
+.browser .img-thumbnail {
+    height: 100px;
+    margin-right: 10px;
+}
+.browser .browser-entry div {
+    color: #2c2c2c;
+}
+/*
+.extend-list li:nth-child(n+11) {
+    display: none;
+}
+*/
+.extender {
+    font-weight: bold;
+}
+.list-unstyled li {
+    padding-top: 2px;
+    padding-bottom: 2px;
 }

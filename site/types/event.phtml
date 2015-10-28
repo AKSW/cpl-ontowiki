@@ -3,9 +3,19 @@
 $prefixes = '
 PREFIX cphm: <' . $this->namespaces["cphm"] . '>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ';
+
+$classTypeof = $prefixes . 'SELECT *
+WHERE {
+	<'.$this->resourceUri.'> rdf:type ?resourceClass . 
+	?resourceClass rdfs:label ?resourceUri .
+	FILTER (lang(?resourceUri) = "de")
+}';
+$classTypeof = $this->querylist( $classTypeof, 'local/items/plain.phtml');
 ?>
 
-<h2 class="">Lebensabschnitt: <?php echo $this->title ?></h2>
+<div class="page-header">
+	<h2 class=""><?php echo $this->title ?> <small>(<?php echo $classTypeof; ?>)</small></h2>
+</div>
 
 <?php
 $person = $this->query(array('where' => '?resourceUri <' . $this->namespaces["cphm"] . 'hasPeriod> <'.$this->resourceUri.'>', 'template' => 'resource'));

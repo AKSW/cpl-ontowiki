@@ -3,25 +3,32 @@
 
 // classes for search and browser
 var browserArg = {
-		"model" : [ "http://uni-helmstedt.hab.de/cph/" ],
-		"browse" : {
-			"Professoren" : {
-				"classes" : ["http://uni-helmstedt.hab.de/cph/model/Professor"]
-			},
-			"Personen" : {
-				"classes" : ["http://uni-helmstedt.hab.de/cph/model/Person"]
-			},
-			"Matrikel" : {
-				"classes" : ["http://uni-helmstedt.hab.de/cph/model/Matrikel"]
-			},
-			"Körperschaften" : {
-				"classes" : [ "http://uni-helmstedt.hab.de/cph/model/Body", "http://uni-helmstedt.hab.de/cph/model/Institution", "http://uni-helmstedt.hab.de/cph/model/Institute", "http://uni-helmstedt.hab.de/cph/model/Academy", "http://uni-helmstedt.hab.de/cph/model/Department", "http://uni-helmstedt.hab.de/cph/model/Faculty", "http://uni-helmstedt.hab.de/cph/model/School", "http://uni-helmstedt.hab.de/cph/model/Organisation", "http://uni-helmstedt.hab.de/cph/model/Party", "http://uni-helmstedt.hab.de/cph/model/PoliticalOrganisation", "http://uni-helmstedt.hab.de/cph/model/AcademicSociety", "http://uni-helmstedt.hab.de/cph/model/OtherOrganisation" ]
-			},
-			"Orte" : {
-				"classes" : ["http://ns.aksw.org/spatialHierarchy/City", "http://ns.aksw.org/spatialHierarchy/AdministrativeDistrict", "http://ns.aksw.org/spatialHierarchy/Country"]
-			}
+	"model" : [ "http://uni-helmstedt.hab.de/cph/" ],
+	"browse" : {
+		"Professoren" : {
+			//"query" : "SELECT DISTINCT ?resourceUri ?label ?image ?birthDate ?birthPlaceRes (MIN(?birthPlace) AS ?birthPlace) ?deathDate ?deathPlaceRes (MIN(?deathPlace) AS ?deathPlace) WHERE { ?resourceUri rdf:type ?body . ?resourceUri rdfs:label ?label . " +
+			"query" : "SELECT DISTINCT * WHERE { ?resourceUri rdf:type ?body . ?resourceUri rdfs:label ?label . " +
+				"OPTIONAL { ?resourceUri <http://uni-helmstedt.hab.de/cph/model/imageSource> ?image . } " +
+				"OPTIONAL { " +
+					"?resourceUri <http://uni-helmstedt.hab.de/cph/model/hasPeriod> ?birth . ?birth rdf:type <http://uni-helmstedt.hab.de/cph/model/Birth> . ?birth <http://uni-helmstedt.hab.de/cph/model/date> ?birthDate . ?birth <http://uni-helmstedt.hab.de/cph/model/periodPlace> ?birthPlaceRes . ?birthPlaceRes rdfs:label ?birthPlace . " +
+					//OPTIONAL { ?birth <http://uni-helmstedt.hab.de/cph/model/date> ?birthDate . ?birth <http://uni-helmstedt.hab.de/cph/model/periodPlace> ?birthPlaceRes . ?birthPlaceRes rdfs:label ?birthPlace } . " +
+					"?resourceUri <http://uni-helmstedt.hab.de/cph/model/hasPeriod> ?death . ?death rdf:type <http://uni-helmstedt.hab.de/cph/model/Death> . ?death <http://uni-helmstedt.hab.de/cph/model/date> ?deathDate . ?death <http://uni-helmstedt.hab.de/cph/model/periodPlace> ?deathPlaceRes . ?deathPlaceRes rdfs:label ?deathPlace . " +
+				//"} FILTER ( ?body = <http://uni-helmstedt.hab.de/cph/model/Professor> ) } GROUP BY ?resourceUri ORDER BY ?label ?resourceUri",
+					//"{ SELECT * WHERE { ?birth <http://uni-helmstedt.hab.de/cph/model/periodPlace> ?birthPlaceRes . ?birthPlaceRes rdfs:label ?birthPlace } } " +
+				"} FILTER ( ?body = <http://uni-helmstedt.hab.de/cph/model/Professor> ) } GROUP BY ?resourceUri ORDER BY ?label ?resourceUri",
+			"classes" : ["http://uni-helmstedt.hab.de/cph/model/Professor"]
+		},
+		"Personen" : {
+			"classes" : ["http://uni-helmstedt.hab.de/cph/model/Person"]
+		},
+		"Körperschaften" : {
+			"classes" : [ "http://uni-helmstedt.hab.de/cph/model/Body", "http://uni-helmstedt.hab.de/cph/model/Institution", "http://uni-helmstedt.hab.de/cph/model/Institute", "http://uni-helmstedt.hab.de/cph/model/Academy", "http://uni-helmstedt.hab.de/cph/model/Department", "http://uni-helmstedt.hab.de/cph/model/Faculty", "http://uni-helmstedt.hab.de/cph/model/School", "http://uni-helmstedt.hab.de/cph/model/Organisation", "http://uni-helmstedt.hab.de/cph/model/Party", "http://uni-helmstedt.hab.de/cph/model/PoliticalOrganisation", "http://uni-helmstedt.hab.de/cph/model/AcademicSociety", "http://uni-helmstedt.hab.de/cph/model/OtherOrganisation" ]
+		},
+		"Orte" : {
+			"classes" : ["http://ns.aksw.org/spatialHierarchy/City", "http://ns.aksw.org/spatialHierarchy/AdministrativeDistrict", "http://ns.aksw.org/spatialHierarchy/Country"]
 		}
-	};
+	}
+};
 
 /*
 Autocomplete Search
@@ -76,41 +83,93 @@ $("input.search-field").on("focus", function() {
 	});
 });
 
-// add browser.js 
-if ( $(".proflist").length > 0 ) {
-	$(".proflist").Browser( browserArg );
+// Enable Browser to proflist
+$(".browser").Browser( browserArg );
+
+/*
+$.each( $(".extend-list"), function(n,i) {
+	var thisList = this;
+	if ( $("li", this).length > 10 ) {
+		var extender = $('<a href="#"><span class="caret"></span> mehr ('+($("li", this).length-10)+')</a>');
+		var pretender = $('<a href="#" style="display:none"><span class="dropup"><span class="caret"></span></span> weniger</a>');
+		$(this).after( $('<p class="extender"></p>').append(extender, pretender) );
+
+		$(extender).click( function() {
+			$("li", thisList).fadeIn();
+			$(this).hide();
+			$(pretender).show();
+			return false;
+		});
+		$(pretender).click( function() {
+			$("li:nth-child(n+11)", thisList).fadeOut();
+			$(this).hide();
+			$(extender).show();
+			return false;
+		});
+	}
+} );
+*/
+
+function extenderShowHide(show, hide) {
+	$(hide).hide();
+	$(show).show();
+	$(hide).removeClass("loading");
 }
 
-// drag and drop functionality for the root form
-function drag_start(event) {
-    var style = window.getComputedStyle(event.target, null);
-    event.dataTransfer.setData("text/plain",
-    (parseInt(style.getPropertyValue("left"),10) - event.clientX) + ',' + (parseInt(style.getPropertyValue("top"),10) - event.clientY));
-} 
-function drag_over(event) { 
-    event.preventDefault(); 
-    return false; 
-} 
-function drop(event) { 
-    var offset = event.dataTransfer.getData("text/plain").split(',');
-    var dm = document.getElementsByTagName("form")[0];
-    
-    var dm1 = document.getElementById("rdform-drag-header");
-    
-    //console.log(event.clientX, event.dataTransfer.getData("text/plain"), parseInt(offset[0],10));
-    //dm.style.left = (event.clientX + parseInt(offset[0],10)) + 'px';
-    dm.style.left = (event.clientX + 470 - Math.abs( ( parseInt(offset[0],10) ) + event.clientX ) ) + 'px';
-    //dm.style.top = (event.clientY + parseInt(offset[1],10)) + 'px';
-    dm.style.top = (event.clientY) + 'px';
-    event.preventDefault();
-    return false;
-}
-function drag_init() {
-	return false;
-	//var dm = document.getElementsByTagName("form")[0];
-	var dm = document.getElementById("rdform-drag-header");
-	$(dm).attr("draggable", "true");
-	dm.addEventListener('dragstart',drag_start,false); 
-	document.body.addEventListener('dragover',drag_over,false); 
-	document.body.addEventListener('drop',drop,false);
-}
+$.each( $(".extend-list"), function(n,i) {
+	var thisEl = this;	
+	if ( $(thisEl).children().length < 10 ) {
+		return true;
+	}
+	var query = $(thisEl).attr("data-query");
+	var item = decodeURIComponent($(thisEl).attr("data-item")).replace(/\+/g, " ");
+	var itemReplacements = item.match(/%\w*%/g);
+	var extender = $('<a href="#"><span class="caret"></span> mehr </a>');
+	var pretender = $('<a href="#" style="display:none"><span class="dropup"><span class="caret"></span></span> weniger </a>');
+	$(thisEl).after( $('<p class="extender"></p>').append(extender, pretender) );	
+
+	$(extender).click( function() {				
+		$(extender).addClass("loading");
+		if ( $(thisEl).attr("data-query") != "" ) {				
+			$.ajax({
+				url: urlBase + "sparql",
+				dataType: "json",
+				data: {
+					query: query,
+					format: "json"
+				},
+				success: function( data ) {
+					$(thisEl).children().remove();
+					$.each( data.results.bindings, function(i,el) {
+						var curItem = item;
+						for ( var j = 0; j < itemReplacements.length; j++ ) {
+							var re = new RegExp(itemReplacements[j],"g");
+							var elKey = itemReplacements[j].replace(/%/g, "");
+							curItem = curItem.replace(re, el[ elKey ].value);
+						}
+						//$(thisEl).append( '<li class="col-md-3"><a href="'+el[ elKey ].value+'">'+el.label.value+'</a></li>' );
+						$(thisEl).append( curItem );						
+					});
+					extenderShowHide( pretender, extender );
+				},
+				error: function(e) {
+					console.log(e);
+				},
+			});
+			$(thisEl).attr("data-query", "");
+		} else {
+			$(thisEl).children().fadeIn();
+			extenderShowHide( pretender, extender );
+		}				
+		return false;
+	});
+	$(pretender).click( function() {
+		//$("li:nth-child(n+11)", thisEl).fadeOut();		
+		$(pretender).addClass("loading");
+		$(thisEl).children("*:nth-child(n+11)").fadeOut(function() {
+			extenderShowHide( extender, pretender );
+		});
+		return false;
+	});
+
+});

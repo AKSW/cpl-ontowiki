@@ -4,16 +4,19 @@ $prefixes = '
 PREFIX cphm: <' . $this->namespaces["cphm"] . '>
 PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> ';
 
-$personsQuery = $prefixes . 'SELECT DISTINCT ?resourceUri
-WHERE {
-	?resourceUri <' . $this->namespaces["cphm"] . 'hasPeriod> ?period .
+$personsQuery = $prefixes . 'SELECT DISTINCT * WHERE {
+	?resourceUri <' . $this->namespaces["cphm"] . 'hasPeriod> ?period ;
+		rdfs:label ?label .
 	?period <' . $this->namespaces["cphm"] . 'periodBody> <'.$this->resourceUri.'> .
-}';
-$persons = $this->querylist( $personsQuery, 'local/items/liplain.phtml');
+} ORDER BY ?label';
+//$persons = $this->querylist( $personsQuery, 'local/items/liplain.phtml', array("tag" => 'ul class="list-unstyled"', "oddclass" => "list-group-item col-md-3" ));
+$persons = $this->querylist( $personsQuery . " LIMIT 10", 'local/items/liplain.phtml', array("tag" => 'ul class="extend-list list-unstyled" data-query="'.$personsQuery.'" data-item="'.urlencode('<li class="col-md-3"><a href="%resourceUri%">%label%</a></li>').'"', "oddclass" => "col-xs-3" ) );
 
 ?>
 
-<h2 class=""><?php echo $this->title ?></h2>
+<div class="page-header">
+	<h2 class=""><?php echo $this->title ?></h2>
+</div>
 
 <?php $gnd = $this->query(array('where' => '<' . $this->resourceUri . '> <' . $this->namespaces["cphm"] . 'gnd> ?resourceUri', 'template' => 'plain'));
 if ( $gnd != "" ) { ?>
